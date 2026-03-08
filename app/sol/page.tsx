@@ -4,9 +4,9 @@ import CryptoRiskCalculator from "../components/CryptoRiskCalculator";
 export default function Page() {
   return (
     <CryptoRiskCalculator
-      symbol="BTC"
-      defaultEntry="92000"
-      defaultStop="88000"
+      symbol="SOL"
+      defaultEntry="200"
+      defaultStop="180"
     />
   );
 }
