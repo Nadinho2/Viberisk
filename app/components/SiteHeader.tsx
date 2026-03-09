@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
+  { href: "/risk", label: "Risk Calculator" },
   { href: "/btc-usdt", label: "BTC" },
   { href: "/eth", label: "ETH" },
   { href: "/sol", label: "SOL" },
