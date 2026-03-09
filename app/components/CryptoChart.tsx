@@ -2,27 +2,29 @@
 
 import React, { useEffect, useRef } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const PAIRS = [
   { slug: "", label: "Home", isHome: true },
-  { slug: "btc-usdt", label: "BTC" },
-  { slug: "eth-usdt", label: "ETH" },
-  { slug: "sol-usdt", label: "SOL" },
-  { slug: "bnb-usdt", label: "BNB" },
-  { slug: "xaut-usdt", label: "XAUT" },
+  { slug: "btc-usdt", label: "BTC", isHome: false },
+  { slug: "eth-usdt", label: "ETH", isHome: false },
+  { slug: "sol-usdt", label: "SOL", isHome: false },
+  { slug: "bnb-usdt", label: "BNB", isHome: false },
+  { slug: "xaut-usdt", label: "XAUT", isHome: false },
 ] as const;
 
 export function CryptoChart() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!containerRef.current) return;
 
     const script = document.createElement("script");
-    script.src =
-      "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
     script.type = "text/javascript";
     script.async = true;
+
     script.innerHTML = JSON.stringify({
       autosize: true,
       symbol: "BINANCE:BTCUSDT",
@@ -46,7 +48,9 @@ export function CryptoChart() {
     containerRef.current.appendChild(script);
 
     return () => {
-      script.remove();
+      if (containerRef.current?.contains(script)) {
+        containerRef.current.removeChild(script);
+      }
     };
   }, []);
 
@@ -60,27 +64,34 @@ export function CryptoChart() {
               Crypto Live Chart
             </h1>
             <p className="mt-1 max-w-xl text-xs text-slate-400 sm:text-sm md:text-base">
-              Real-time price movements across major pairs. Green for gains, red
-              for declines. Switch symbols in the chart or use calculators below.
+              Real-time price movements across major pairs. Switch symbols in the chart or use calculators below.
             </p>
           </div>
+
+          {/* Navigation */}
           <nav
             className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:mt-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0"
             aria-label="Navigation"
           >
-            {PAIRS.map(({ slug, label, isHome }) => (
-              <Link
-                key={slug || "home"}
-                href={isHome ? "/" : `/${slug}`}
-                className={`min-h-[44px] min-w-[44px] shrink-0 rounded-lg px-3 py-2.5 text-xs font-medium transition flex items-center justify-center touch-manipulation sm:min-h-0 sm:min-w-0 sm:py-1.5 ${
-                  isHome
-                    ? "bg-emerald-600/30 text-emerald-300 ring-1 ring-emerald-500/40"
-                    : "text-slate-400 hover:bg-slate-800/80 hover:text-slate-200 active:bg-slate-800"
-                }`}
-              >
-                {label}
-              </Link>
-            ))}
+            {PAIRS.map(({ slug, label, isHome }) => {
+              const isActive = isHome
+                ? pathname === "/"
+                : pathname === `/${slug}`;
+
+              return (
+                <Link
+                  key={slug || "home"}
+                  href={isHome ? "/" : `/${slug}`}
+                  className={`min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-medium transition flex items-center justify-center touch-manipulation sm:min-h-0 sm:py-2 ${
+                    isActive
+                      ? "bg-slate-700 text-white shadow-md"
+                      : "text-slate-400 hover:bg-slate-800/80 hover:text-slate-200"
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
           </nav>
         </header>
 
