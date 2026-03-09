@@ -2,20 +2,17 @@
 
 import React, { useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 const PAIRS = [
-  { slug: "", label: "Home", isHome: true },
-  { slug: "btc-usdt", label: "BTC", isHome: false },
-  { slug: "eth-usdt", label: "ETH", isHome: false },
-  { slug: "sol-usdt", label: "SOL", isHome: false },
-  { slug: "bnb-usdt", label: "BNB", isHome: false },
-  { slug: "xaut-usdt", label: "XAUT", isHome: false },
+  { slug: "btc-usdt", label: "BTC" },
+  { slug: "eth", label: "ETH" },
+  { slug: "sol", label: "SOL" },
+  { slug: "bnb", label: "BNB" },
+  { slug: "xaut", label: "XAUT" },
 ] as const;
 
 export function CryptoChart() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -55,44 +52,16 @@ export function CryptoChart() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50 overflow-x-hidden">
-      <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-6 sm:px-5 sm:py-8 md:px-8 md:py-10 lg:px-10">
-        {/* Header */}
-        <header className="mb-6 flex flex-col gap-4 border-b border-slate-800 pb-5 sm:mb-8 sm:pb-6 md:flex-row md:items-end md:justify-between">
-          <div className="min-w-0">
-            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl md:text-3xl">
-              Crypto Live Chart
-            </h1>
-            <p className="mt-1 max-w-xl text-xs text-slate-400 sm:text-sm md:text-base">
-              Real-time price movements across major pairs. Switch symbols in the chart or use calculators below.
-            </p>
-          </div>
-
-          {/* Navigation */}
-          <nav
-            className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:mt-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0"
-            aria-label="Navigation"
-          >
-            {PAIRS.map(({ slug, label, isHome }) => {
-              const isActive = isHome
-                ? pathname === "/"
-                : pathname === `/${slug}`;
-
-              return (
-                <Link
-                  key={slug || "home"}
-                  href={isHome ? "/" : `/${slug}`}
-                  className={`min-h-[44px] rounded-lg px-4 py-2.5 text-sm font-medium transition flex items-center justify-center touch-manipulation sm:min-h-0 sm:py-2 ${
-                    isActive
-                      ? "bg-slate-700 text-white shadow-md"
-                      : "text-slate-400 hover:bg-slate-800/80 hover:text-slate-200"
-                  }`}
-                >
-                  {label}
-                </Link>
-              );
-            })}
-          </nav>
+    <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50">
+      <div className="mx-auto flex min-h-full max-w-7xl flex-col px-4 py-6 sm:px-5 sm:py-8 md:px-6 md:py-10 lg:px-8">
+        {/* Page title – no duplicate nav, header is in layout */}
+        <header className="mb-6 border-b border-slate-800 pb-5 sm:mb-8 sm:pb-6">
+          <h1 className="text-xl font-semibold tracking-tight text-slate-50 sm:text-2xl md:text-3xl">
+            Crypto Live Chart
+          </h1>
+          <p className="mt-2 max-w-xl text-xs text-slate-400 sm:text-sm md:text-base">
+            Real-time price movements across major pairs. Switch symbols in the chart or use calculators below.
+          </p>
         </header>
 
         {/* Chart */}
@@ -132,7 +101,7 @@ export function CryptoChart() {
             Position calculators
           </h2>
           <div className="flex flex-wrap gap-2">
-            {PAIRS.filter((p) => !p.isHome).map(({ slug, label }) => (
+            {PAIRS.map(({ slug, label }) => (
               <Link
                 key={slug}
                 href={`/${slug}`}
