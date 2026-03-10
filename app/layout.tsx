@@ -18,6 +18,22 @@ export const metadata: Metadata = {
   title: "Crypto Position & Risk Calculator",
   description:
     "Professional crypto position sizing, risk calculator, and live charts for BTC, ETH, SOL, BNB, XAUT.",
+  openGraph: {
+    title: "VibeRisk – Crypto Risk Calculator",
+    description:
+      "Track your crypto risk, position sizing, and trade history with VibeRisk.",
+    images: [
+      {
+        url: "/viberisk-logo.png",
+        width: 1024,
+        height: 687,
+        alt: "VibeRisk"
+      }
+    ]
+  },
+  icons: {
+    icon: "/viberisk-logo.png"
+  }
 };
 
 export const viewport: Viewport = {

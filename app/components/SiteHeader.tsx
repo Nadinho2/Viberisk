@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const NAV_LINKS = [
@@ -23,11 +24,18 @@ export function SiteHeader() {
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4">
           {/* Logo – link to home */}
-          <Link
-            href="/"
-            className="text-xl font-bold tracking-tighter text-[#39FF88] transition hover:opacity-90 sm:text-2xl md:text-3xl"
-          >
-            VIBERISK
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/viberisk-logo.png"
+              alt="VibeRisk"
+              width={40}
+              height={40}
+              className="rounded-md"
+              priority
+            />
+            <span className="text-xl font-bold tracking-tighter text-[#39FF88] transition hover:opacity-90 sm:text-2xl md:text-3xl">
+              VibeRisk
+            </span>
           </Link>
 
           {/* Desktop nav */}
