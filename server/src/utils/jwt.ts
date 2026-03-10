@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { Secret, SignOptions } from "jsonwebtoken";
 import { env } from "../config/env";
 import { IUser } from "../models/User";
 
@@ -20,9 +20,12 @@ export const signAccessToken = (user: IUser): string => {
     tokenVersion: user.tokenVersion
   };
 
-  return jwt.sign(payload, env.jwtAccessSecret, {
-    expiresIn: env.accessTokenExpiresIn
-  });
+  const options: SignOptions = {
+    // cast because env provides a generic string (e.g. "15m")
+    expiresIn: env.accessTokenExpiresIn as unknown as SignOptions["expiresIn"]
+  };
+
+  return jwt.sign(payload, env.jwtAccessSecret as Secret, options);
 };
 
 export const signRefreshToken = (user: IUser): string => {
@@ -32,9 +35,11 @@ export const signRefreshToken = (user: IUser): string => {
     tokenVersion: user.tokenVersion
   };
 
-  return jwt.sign(payload, env.jwtRefreshSecret, {
-    expiresIn: env.refreshTokenExpiresIn
-  });
+  const options: SignOptions = {
+    expiresIn: env.refreshTokenExpiresIn as unknown as SignOptions["expiresIn"]
+  };
+
+  return jwt.sign(payload, env.jwtRefreshSecret as Secret, options);
 };
 
 export const signPasswordResetToken = (user: IUser): string => {
@@ -43,17 +48,19 @@ export const signPasswordResetToken = (user: IUser): string => {
     passwordHash: user.password
   };
 
-  return jwt.sign(payload, env.jwtResetSecret, {
-    expiresIn: `${env.resetTokenExpiresInMinutes}m`
-  });
+  const options: SignOptions = {
+    expiresIn: `${env.resetTokenExpiresInMinutes}m` as unknown as SignOptions["expiresIn"]
+  };
+
+  return jwt.sign(payload, env.jwtResetSecret as Secret, options);
 };
 
 export const verifyAccessToken = (token: string): JwtPayload =>
-  jwt.verify(token, env.jwtAccessSecret) as JwtPayload;
+  jwt.verify(token, env.jwtAccessSecret as Secret) as JwtPayload;
 
 export const verifyRefreshToken = (token: string): JwtPayload =>
-  jwt.verify(token, env.jwtRefreshSecret) as JwtPayload;
+  jwt.verify(token, env.jwtRefreshSecret as Secret) as JwtPayload;
 
 export const verifyResetToken = (token: string): ResetJwtPayload =>
-  jwt.verify(token, env.jwtResetSecret) as ResetJwtPayload;
+  jwt.verify(token, env.jwtResetSecret as Secret) as ResetJwtPayload;
 
