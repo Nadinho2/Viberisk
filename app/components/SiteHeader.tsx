@@ -58,6 +58,22 @@ export function SiteHeader() {
             ))}
           </nav>
 
+          {/* Desktop auth buttons */}
+          <div className="hidden items-center gap-3 md:flex">
+            <Link
+              href="/login"
+              className="rounded-lg border border-[#39FF88]/60 px-3 py-1.5 text-xs font-medium text-[#39FF88] hover:bg-[#39FF88]/10"
+            >
+              Login
+            </Link>
+            <Link
+              href="/dashboard"
+              className="rounded-lg bg-[#39FF88] px-3 py-1.5 text-xs font-medium text-zinc-950 hover:bg-[#58ff9c]"
+            >
+              Dashboard
+            </Link>
+          </div>
+
           {/* Hamburger button – mobile */}
           <button
             type="button"
@@ -116,6 +132,23 @@ export function SiteHeader() {
               {label}
             </Link>
           ))}
+
+          <div className="mt-2 flex flex-col gap-2 px-5 pb-4 pt-2 border-t border-zinc-800">
+            <Link
+              href="/login"
+              onClick={() => setMenuOpen(false)}
+              className="rounded-lg border border-[#39FF88]/60 px-3 py-2 text-center text-xs font-medium text-[#39FF88] hover:bg-[#39FF88]/10"
+            >
+              Login
+            </Link>
+            <Link
+              href="/dashboard"
+              onClick={() => setMenuOpen(false)}
+              className="rounded-lg bg-[#39FF88] px-3 py-2 text-center text-xs font-medium text-zinc-950 hover:bg-[#58ff9c]"
+            >
+              Dashboard
+            </Link>
+          </div>
         </nav>
       </div>
     </>
