@@ -335,40 +335,30 @@ export default function RiskCalculatorPage() {
     });
   };
 
-  const handleUpdateLogEntry = async (
+  const handleUpdateLogEntry = (
     id: number,
     patch: Partial<Pick<TradeLogEntry, "status" | "realizedR" | "outcome">>
   ) => {
-    const existing = log.find((e) => e.id === id);
-    if (!existing) {
-      // nothing to update
-      return;
-    }
-
-    let next: TradeLogEntry = { ...existing, ...patch };
-
-    if (
-      Object.prototype.hasOwnProperty.call(patch, "realizedR") &&
-      patch.realizedR !== null &&
-      patch.realizedR !== undefined &&
-      !Object.prototype.hasOwnProperty.call(patch, "outcome")
-    ) {
-      if (patch.realizedR > 0) next.outcome = "win";
-      else if (patch.realizedR < 0) next.outcome = "loss";
-      else next.outcome = "breakeven";
-    }
-
     setLog((prev) =>
-      prev.map((entry) => (entry.id === id ? next : entry))
-    );
+      prev.map((entry) => {
+        if (entry.id !== id) return entry;
 
-    if (
-      !next.sentToDashboard &&
-      next.realizedR != null &&
-      next.outcome !== "open"
-    ) {
-      await handleSyncToDashboard(next);
-    }
+        let next: TradeLogEntry = { ...entry, ...patch };
+
+        if (
+          Object.prototype.hasOwnProperty.call(patch, "realizedR") &&
+          patch.realizedR !== null &&
+          patch.realizedR !== undefined &&
+          !Object.prototype.hasOwnProperty.call(patch, "outcome")
+        ) {
+          if (patch.realizedR > 0) next.outcome = "win";
+          else if (patch.realizedR < 0) next.outcome = "loss";
+          else next.outcome = "breakeven";
+        }
+
+        return next;
+      })
+    );
   };
 
   const takenCount = log.filter((e) => e.status === "taken").length;
@@ -401,7 +391,7 @@ export default function RiskCalculatorPage() {
       ? totalRealizedR / takenWithOutcome.length
       : 0;
 
-  const handleSyncToDashboard = async (entry: TradeLogEntry) => {
+  const handleSaveToDashboard = async (entry: TradeLogEntry) => {
     if (entry.sentToDashboard) {
       setToast({
         id: Date.now(),
@@ -415,7 +405,7 @@ export default function RiskCalculatorPage() {
       setToast({
         id: Date.now(),
         message:
-          "Set realized R and outcome (win/loss/breakeven) before closing.",
+          "Set realized R and outcome (win/loss/breakeven) before saving.",
         type: "error",
       });
       return;
@@ -455,11 +445,7 @@ export default function RiskCalculatorPage() {
         return;
       }
 
-      setLog((prev) =>
-        prev.map((e) =>
-          e.id === entry.id ? { ...e, sentToDashboard: true } : e
-        )
-      );
+      setLog((prev) => prev.filter((e) => e.id !== entry.id));
 
       setToast({
         id: Date.now(),
@@ -1008,6 +994,7 @@ export default function RiskCalculatorPage() {
                         <th className="px-3 py-2">Outcome</th>
                         <th className="px-3 py-2">Status</th>
                         <th className="px-3 py-2">PnL</th>
+                        <th className="px-3 py-2">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1093,17 +1080,28 @@ export default function RiskCalculatorPage() {
                                   entry.riskAmount * entry.realizedR
                                 )
                               : "—"}
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setLog((prev) =>
-                                  prev.filter((e) => e.id !== entry.id)
-                                )
-                              }
-                              className="ml-2 rounded border border-red-500/60 px-2 py-1 text-[0.7rem] text-red-400 hover:bg-red-500/10"
-                            >
-                              Delete
-                            </button>
+                          </td>
+                          <td className="px-3 py-2 align-top">
+                            <div className="flex flex-col gap-1">
+                              <button
+                                type="button"
+                                onClick={() => void handleSaveToDashboard(entry)}
+                                className="rounded border border-slate-700 bg-slate-950/70 px-2 py-1 text-[0.7rem] text-slate-50 hover:border-[#39FF88] hover:text-[#39FF88]"
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setLog((prev) =>
+                                    prev.filter((e) => e.id !== entry.id)
+                                  )
+                                }
+                                className="rounded border border-red-500/60 px-2 py-1 text-[0.7rem] text-red-400 hover:bg-red-500/10"
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}

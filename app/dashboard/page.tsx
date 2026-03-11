@@ -170,7 +170,7 @@ export default function DashboardPage() {
                         {t.status}
                       </td>
                       <td className="px-3 py-2 align-top text-[0.7rem]">
-                        {t.category || "active"}
+                        {t.category === "missed" ? "Missed" : "Taken"}
                       </td>
                       <td className="px-3 py-2 align-top text-[0.7rem]">
                         {t.entryPrice}
