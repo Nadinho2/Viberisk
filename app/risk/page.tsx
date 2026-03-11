@@ -114,7 +114,6 @@ export default function RiskCalculatorPage() {
   const [log, setLog] = useState<TradeLogEntry[]>([]);
   const [toast, setToast] = useState<Toast | null>(null);
   const [isPriceLoading, setIsPriceLoading] = useState(false);
-  const [savingToDashboard, setSavingToDashboard] = useState(false);
 
   const handleChange =
     (field: keyof RiskInputs) =>
@@ -187,10 +186,12 @@ export default function RiskCalculatorPage() {
         : 0;
 
     const distanceRisk = Math.abs(entryNum - stopNum);
+
     const orderQtyNum =
       riskPerTradeNum > 0 && distanceRisk > 0
         ? riskPerTradeNum / distanceRisk
         : 0;
+
     const orderValueNum =
       orderQtyNum > 0 && entryNum > 0 ? orderQtyNum * entryNum : 0;
 
@@ -354,7 +355,6 @@ export default function RiskCalculatorPage() {
     }
 
     // TAKEN trades: send to dashboard with category "active"
-    setSavingToDashboard(true);
     try {
       const res = await fetch("/api/trades", {
         method: "POST",
@@ -417,8 +417,6 @@ export default function RiskCalculatorPage() {
         message: "Unable to save trade to dashboard. Try again later.",
         type: "error",
       });
-    } finally {
-      setSavingToDashboard(false);
     }
   };
 
@@ -467,10 +465,12 @@ export default function RiskCalculatorPage() {
   const winCount = takenWithOutcome.filter(
     (e) => e.realizedR !== null && e.realizedR > 0
   ).length;
+
   const winRate =
     takenWithOutcome.length > 0
       ? (winCount / takenWithOutcome.length) * 100
       : 0;
+
   const avgR =
     takenWithOutcome.length > 0
       ? totalRealizedR / takenWithOutcome.length
@@ -595,31 +595,526 @@ export default function RiskCalculatorPage() {
     >
       <div className="mx-auto flex min-h-full max-w-6xl flex-col px-4 py-6 sm:px-5 sm:py-8 md:px-6 md:py-10 lg:px-8">
         {/* Header */}
-        {/* ... unchanged header and calculator UI ... */}
+        <header className="mb-6 border-b border-slate-800 pb-5 sm:mb-8 sm:pb-6">
+          <h1 className="text-xl font-semibold tracking-tight text-slate-50 sm:text-2xl md:text-3xl">
+            Risk Calculator
+          </h1>
+          <p className="mt-2 max-w-2xl text-xs text-slate-400 sm:text-sm md:text-base">
+            Get precise position sizing from your account size and risk
+            percentage. See exact order quantity, notional value, and
+            risk‑reward, then log trades to track your performance.
+          </p>
+        </header>
 
-        {/* At the bottom: trade log table; add delete button per row */}
-        {/* Inside tbody map: */}
-        {/* ...existing cells... */}
-        {/* Replace the last <td> with this: */}
-        {/* (or add this delete button into that <td>) */}
+        <main className="grid flex-1 gap-6 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+          {/* Inputs */}
+          <section className="min-w-0 rounded-2xl border border-slate-800/80 bg-slate-900/80 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.85)] backdrop-blur sm:p-6">
+            <h2 className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#39FF88] sm:text-sm">
+              Trade setup
+            </h2>
+            <p className="mb-4 text-xs text-slate-400 sm:mb-6">
+              Start with your account, exact risk %, and levels. The calculator
+              returns an executable position size you can type directly into the
+              exchange.
+            </p>
 
-        {/* Example snippet for the delete button inside the row: */}
-        {/* 
-        <td className="px-3 py-2 align-top">
-          {entry.status === "taken" && entry.realizedR != null
-            ? usdFormatter.format(entry.riskAmount * entry.realizedR)
-            : "—"}
-          <button
-            type="button"
-            onClick={() =>
-              setLog((prev) => prev.filter((e) => e.id !== entry.id))
-            }
-            className="ml-2 rounded border border-red-500/60 px-2 py-1 text-[0.7rem] text-red-400 hover:bg-red-500/10"
-          >
-            Delete
-          </button>
-        </td>
-        */}
+            <div className="space-y-6">
+              {/* Account row */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]">
+                <div className="space-y-1.5">
+                  <label className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
+                    Account size (USDT)
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    value={inputs.accountSize}
+                    onChange={handleChange("accountSize")}
+                    className="w-full min-h-[44px] rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none transition focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                    placeholder="e.g. 100000"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
+                    Account type
+                  </label>
+                  <select
+                    value={inputs.accountType}
+                    onChange={handleChange("accountType")}
+                    className="w-full min-h-[44px] rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none transition focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                  >
+                    <option value="personal">Personal</option>
+                    <option value="prop">Prop firm</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
+                    Risk per trade (%)
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    value={inputs.riskPercent}
+                    onChange={handleChange("riskPercent")}
+                    className="w-full min-h-[44px] rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none transition focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                    placeholder="e.g. 0.25"
+                  />
+                </div>
+              </div>
+
+              {/* Symbol + direction */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
+                    Pair / symbol
+                  </label>
+                  <input
+                    type="text"
+                    value={inputs.symbol}
+                    onChange={handleChange("symbol")}
+                    className="w-full min-h-[44px] rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none transition focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                    placeholder="e.g. BTC/USDT"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
+                    Direction
+                  </label>
+                  <select
+                    value={inputs.direction}
+                    onChange={handleChange("direction")}
+                    className="w-full min-h-[44px] rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none transition focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                  >
+                    <option value="long">Long</option>
+                    <option value="short">Short</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Entry / stop / max leverage */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="space-y-1.5">
+                  <label className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
+                    Entry price
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    value={inputs.entry}
+                    onChange={handleChange("entry")}
+                    className="w-full min-h-[44px] rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none transition focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                    placeholder="e.g. 92000"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleFillCurrentPrice}
+                    disabled={isPriceLoading}
+                    className="mt-2 rounded-md border border-slate-700 bg-slate-950/70 px-3 py-1.5 text-[0.7rem] font-medium text-slate-200 transition hover:border-[#39FF88] hover:text-[#39FF88] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isPriceLoading ? "Fetching price…" : "Fill current price"}
+                  </button>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
+                    Stop loss price
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    value={inputs.stop}
+                    onChange={handleChange("stop")}
+                    className="w-full min-h-[44px] rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none transition focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                    placeholder="e.g. 90000"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
+                    Max leverage allowed
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min={1}
+                    step="0.5"
+                    value={inputs.maxLeverage}
+                    onChange={handleChange("maxLeverage")}
+                    className="w-full min-h-[44px] rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none transition focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                    placeholder="e.g. 10"
+                  />
+                  <p className="mt-1 text-[0.65rem] text-slate-500">
+                    Optional cap used for liquidation estimate.
+                  </p>
+                </div>
+              </div>
+
+              {/* TPs */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="space-y-1.5">
+                  <label className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
+                    Take profit 1
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    value={inputs.takeProfit1}
+                    onChange={handleChange("takeProfit1")}
+                    className="w-full min-h-[44px] rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none transition focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                    placeholder="e.g. 96000"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
+                    Take profit 2
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    value={inputs.takeProfit2}
+                    onChange={handleChange("takeProfit2")}
+                    className="w-full min-h-[44px] rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none transition focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                    placeholder="optional"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
+                    Take profit 3
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    value={inputs.takeProfit3}
+                    onChange={handleChange("takeProfit3")}
+                    className="w-full min-h-[44px] rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none transition focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                    placeholder="optional"
+                  />
+                </div>
+              </div>
+
+              {!canCompute && (
+                <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-[0.7rem] text-amber-300">
+                  Fill in account size, risk %, entry, stop and at least one
+                  take profit. Entry and stop must be different.
+                </p>
+              )}
+            </div>
+          </section>
+
+          {/* Calculations + log */}
+          <section className="min-w-0 space-y-4">
+            {/* Calculations */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.95)] backdrop-blur sm:p-5">
+              <h2 className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#39FF88] sm:text-sm">
+                Position recommendation
+              </h2>
+              <p className="mb-4 text-[0.7rem] text-slate-400 sm:text-xs">
+                These numbers can be typed directly into your exchange ticket
+                for this setup.
+              </p>
+
+              <div className="space-y-3">
+                <OutputRow
+                  label="Risk per trade"
+                  value={
+                    canCompute && riskPerTrade > 0
+                      ? `${usdFormatter.format(
+                          riskPerTrade
+                        )} (${ratioFormatter.format(
+                          riskPercent
+                        )}% of account)`
+                      : "—"
+                  }
+                />
+                <OutputRow
+                  label={`Order quantity (${baseSymbol})`}
+                  value={
+                    canCompute && orderQty > 0
+                      ? `${qtyFormatter.format(orderQty)} ${baseSymbol}`
+                      : "—"
+                  }
+                />
+                <OutputRow
+                  label="Notional value (USDT)"
+                  value={
+                    canCompute && orderValue > 0
+                      ? usdFormatter.format(orderValue)
+                      : "—"
+                  }
+                />
+                <OutputRow
+                  label="Price risk / unit"
+                  value={
+                    canCompute && priceRiskPerUnit > 0
+                      ? usdFormatter.format(priceRiskPerUnit)
+                      : "—"
+                  }
+                />
+                <OutputRow
+                  label="Potential reward (weighted)"
+                  value={
+                    canCompute && rewardAmount > 0
+                      ? usdFormatter.format(rewardAmount)
+                      : "—"
+                  }
+                />
+                <OutputRow
+                  label="Planned R:R"
+                  value={
+                    canCompute && plannedR > 0
+                      ? `${ratioFormatter.format(plannedR)} R`
+                      : "—"
+                  }
+                />
+                <OutputRow
+                  label="Implied leverage"
+                  value={
+                    canCompute && impliedLeverage > 0
+                      ? `${ratioFormatter.format(impliedLeverage)}×`
+                      : "—"
+                  }
+                />
+                <OutputRow
+                  label="Est. liquidation price"
+                  value={
+                    canCompute && liquidationPrice > 0
+                      ? usdFormatter.format(liquidationPrice)
+                      : "—"
+                  }
+                />
+              </div>
+
+              {warningMessage && (
+                <div className="mt-4 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-[0.7rem] text-amber-200">
+                  {warningMessage}
+                </div>
+              )}
+            </div>
+
+            {/* Trade log */}
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.95)] backdrop-blur sm:p-5">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300 sm:text-sm">
+                    Trade log
+                  </h2>
+                  <p className="mt-1 text-[0.7rem] text-slate-500">
+                    Track risk / reward, outcomes, and PnL for every setup.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3 text-[0.7rem] text-slate-400">
+                  <span>
+                    Taken:{" "}
+                    <span className="font-semibold text-slate-100">
+                      {takenCount}
+                    </span>
+                  </span>
+                  <span>
+                    Missed:{" "}
+                    <span className="font-semibold text-slate-100">
+                      {missedCount}
+                    </span>
+                  </span>
+                  <span className="hidden sm:inline">
+                    Win rate:{" "}
+                    <span className="font-semibold text-slate-100">
+                      {ratioFormatter.format(winRate)}%
+                    </span>
+                  </span>
+                  <span className="hidden sm:inline">
+                    Avg R:{" "}
+                    <span className="font-semibold text-slate-100">
+                      {ratioFormatter.format(avgR)}
+                    </span>
+                  </span>
+                  <span className="hidden sm:inline">
+                    Total PnL:{" "}
+                    <span
+                      className={`font-semibold ${
+                        totalRealizedPnl >= 0
+                          ? "text-emerald-300"
+                          : "text-red-300"
+                      }`}
+                    >
+                      {totalRealizedPnl === 0
+                        ? "0"
+                        : usdFormatter.format(totalRealizedPnl)}
+                    </span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="mb-3 flex flex-wrap items-center gap-3">
+                <label className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-slate-400">
+                  Status
+                </label>
+                <select
+                  value={status}
+                  onChange={(e) =>
+                    setStatus(e.target.value as TradeLogStatus)
+                  }
+                  className="rounded-lg border border-slate-700 bg-slate-950/80 px-3 py-2 text-xs text-slate-50 outline-none transition focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                >
+                  <option value="taken">Taken</option>
+                  <option value="missed">Missed</option>
+                </select>
+                <button
+                  type="button"
+                  onClick={handleAddToLog}
+                  disabled={!canCompute || riskPerTrade <= 0}
+                  className="rounded-lg bg-[#39FF88] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-black shadow-[0_0_18px_rgba(57,255,136,0.6)] transition enabled:hover:bg-[#2fd270] disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-300"
+                >
+                  Log trade (Ctrl/Cmd + Enter)
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportCsv}
+                  className="rounded-lg border border-slate-700 bg-slate-950/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-200 transition hover:border-[#39FF88] hover:text-[#39FF88]"
+                >
+                  Export CSV
+                </button>
+              </div>
+
+              {log.length === 0 ? (
+                <p className="mt-2 text-[0.7rem] text-slate-500">
+                  No trades logged yet. Once you size a setup, choose{" "}
+                  <span className="font-semibold text-slate-300">
+                    Taken
+                  </span>{" "}
+                  or{" "}
+                  <span className="font-semibold text-slate-300">
+                    Missed
+                  </span>{" "}
+                  and add it here.
+                </p>
+              ) : (
+                <div className="mt-3 max-h-72 overflow-auto rounded-lg border border-slate-800">
+                  <table className="min-w-full text-left text-[0.7rem] text-slate-300">
+                    <thead className="bg-slate-900/80 text-[0.68rem] uppercase tracking-[0.16em] text-slate-500">
+                      <tr>
+                        <th className="px-3 py-2">Time</th>
+                        <th className="px-3 py-2">Pair</th>
+                        <th className="px-3 py-2">Acct</th>
+                        <th className="px-3 py-2">Dir</th>
+                        <th className="px-3 py-2">Risk %</th>
+                        <th className="px-3 py-2">Planned R:R</th>
+                        <th className="px-3 py-2">Realized R</th>
+                        <th className="px-3 py-2">Outcome</th>
+                        <th className="px-3 py-2">Status</th>
+                        <th className="px-3 py-2">PnL</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {log.map((entry) => (
+                        <tr
+                          key={entry.id}
+                          className="border-t border-slate-800/80 odd:bg-slate-900/40"
+                        >
+                          <td className="px-3 py-2 align-top text-slate-400">
+                            {entry.timestamp}
+                          </td>
+                          <td className="px-3 py-2 align-top font-mono text-slate-50">
+                            {entry.symbol}
+                          </td>
+                          <td className="px-3 py-2 align-top text-slate-300">
+                            {entry.accountType}
+                          </td>
+                          <td className="px-3 py-2 align-top">
+                            {entry.direction === "long" ? "Long" : "Short"}
+                          </td>
+                          <td className="px-3 py-2 align-top">
+                            {ratioFormatter.format(entry.riskPercent)}%
+                          </td>
+                          <td className="px-3 py-2 align-top">
+                            {ratioFormatter.format(entry.plannedR)} R
+                          </td>
+                          <td className="px-3 py-2 align-top">
+                            <input
+                              type="number"
+                              inputMode="decimal"
+                              step="0.1"
+                              value={
+                                entry.realizedR != null
+                                  ? entry.realizedR
+                                  : ""
+                              }
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                const parsed =
+                                  value === "" ? null : toNumber(value);
+                                handleUpdateLogEntry(entry.id, {
+                                  realizedR: parsed,
+                                });
+                              }}
+                              className="w-20 rounded border border-slate-700 bg-slate-950/70 px-2 py-1 text-[0.7rem] text-slate-50 outline-none focus:border-[#39FF88] focus:ring-1 focus:ring-[#39FF88]/40"
+                              placeholder="e.g. 1.5"
+                            />
+                          </td>
+                          <td className="px-3 py-2 align-top">
+                            <select
+                              value={entry.outcome}
+                              onChange={(e) =>
+                                handleUpdateLogEntry(entry.id, {
+                                  outcome: e.target.value as TradeOutcome,
+                                })
+                              }
+                              className="rounded border border-slate-700 bg-slate-950/80 px-2 py-1 text-[0.7rem] text-slate-50 outline-none focus:border-[#39FF88] focus:ring-1 focus:ring-[#39FF88]/40"
+                            >
+                              <option value="open">Open</option>
+                              <option value="win">Win</option>
+                              <option value="loss">Loss</option>
+                              <option value="breakeven">Breakeven</option>
+                            </select>
+                          </td>
+                          <td className="px-3 py-2 align-top">
+                            <select
+                              value={entry.status}
+                              onChange={(e) =>
+                                handleUpdateLogEntry(entry.id, {
+                                  status: e.target.value as TradeLogStatus,
+                                })
+                              }
+                              className="rounded border border-slate-700 bg-slate-950/80 px-2 py-1 text-[0.7rem] text-slate-50 outline-none focus:border-[#39FF88] focus:ring-1 focus:ring-[#39FF88]/40"
+                            >
+                              <option value="taken">Taken</option>
+                              <option value="missed">Missed</option>
+                            </select>
+                          </td>
+                          <td className="px-3 py-2 align-top">
+                            {entry.status === "taken" &&
+                            entry.realizedR != null
+                              ? usdFormatter.format(
+                                  entry.riskAmount * entry.realizedR
+                                )
+                              : "—"}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setLog((prev) =>
+                                  prev.filter((e) => e.id !== entry.id)
+                                )
+                              }
+                              className="ml-2 rounded border border-red-500/60 px-2 py-1 text-[0.7rem] text-red-400 hover:bg-red-500/10"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </section>
+        </main>
       </div>
 
       {/* Toast */}
