@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -18,6 +19,7 @@ const NAV_LINKS = [
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { user, loading, logout } = useAuth();
 
   return (
     <>
@@ -60,18 +62,31 @@ export function SiteHeader() {
 
           {/* Desktop auth buttons */}
           <div className="hidden items-center gap-3 md:flex">
-            <Link
-              href="/login"
-              className="rounded-lg border border-[#39FF88]/60 px-3 py-1.5 text-xs font-medium text-[#39FF88] hover:bg-[#39FF88]/10"
-            >
-              Login
-            </Link>
-            <Link
-              href="/dashboard"
-              className="rounded-lg bg-[#39FF88] px-3 py-1.5 text-xs font-medium text-zinc-950 hover:bg-[#58ff9c]"
-            >
-              Dashboard
-            </Link>
+            {!loading && !user && (
+              <Link
+                href="/login"
+                className="rounded-lg border border-[#39FF88]/60 px-3 py-1.5 text-xs font-medium text-[#39FF88] hover:bg-[#39FF88]/10"
+              >
+                Login
+              </Link>
+            )}
+            {!loading && user && (
+              <>
+                <Link
+                  href="/dashboard"
+                  className="rounded-lg bg-[#39FF88] px-3 py-1.5 text-xs font-medium text-zinc-950 hover:bg-[#58ff9c]"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => void logout()}
+                  className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-200 hover:bg-slate-800"
+                >
+                  Logout
+                </button>
+              </>
+            )}
           </div>
 
           {/* Hamburger button – mobile */}
@@ -134,20 +149,36 @@ export function SiteHeader() {
           ))}
 
           <div className="mt-2 flex flex-col gap-2 px-5 pb-4 pt-2 border-t border-zinc-800">
-            <Link
-              href="/login"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-lg border border-[#39FF88]/60 px-3 py-2 text-center text-xs font-medium text-[#39FF88] hover:bg-[#39FF88]/10"
-            >
-              Login
-            </Link>
-            <Link
-              href="/dashboard"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-lg bg-[#39FF88] px-3 py-2 text-center text-xs font-medium text-zinc-950 hover:bg-[#58ff9c]"
-            >
-              Dashboard
-            </Link>
+            {!loading && !user && (
+              <Link
+                href="/login"
+                onClick={() => setMenuOpen(false)}
+                className="rounded-lg border border-[#39FF88]/60 px-3 py-2 text-center text-xs font-medium text-[#39FF88] hover:bg-[#39FF88]/10"
+              >
+                Login
+              </Link>
+            )}
+            {!loading && user && (
+              <>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-lg bg-[#39FF88] px-3 py-2 text-center text-xs font-medium text-zinc-950 hover:bg-[#58ff9c]"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void logout();
+                    setMenuOpen(false);
+                  }}
+                  className="rounded-lg border border-slate-700 px-3 py-2 text-center text-xs font-medium text-slate-200 hover:bg-slate-800"
+                >
+                  Logout
+                </button>
+              </>
+            )}
           </div>
         </nav>
       </div>
