@@ -114,6 +114,7 @@ export default function RiskCalculatorPage() {
   const [log, setLog] = useState<TradeLogEntry[]>([]);
   const [toast, setToast] = useState<Toast | null>(null);
   const [isPriceLoading, setIsPriceLoading] = useState(false);
+  const [savingToDashboard, setSavingToDashboard] = useState(false);
 
   const handleChange =
     (field: keyof RiskInputs) =>
@@ -269,7 +270,7 @@ export default function RiskCalculatorPage() {
     };
   }, [inputs]);
 
-  const handleAddToLog = () => {
+  const handleAddToLog = async () => {
     if (!canCompute || riskPerTrade <= 0 || plannedR <= 0) {
       setToast({
         id: Date.now(),
@@ -280,26 +281,113 @@ export default function RiskCalculatorPage() {
     }
 
     const now = new Date();
-    const entry: TradeLogEntry = {
-      id: now.getTime(),
-      timestamp: now.toLocaleString(),
-      symbol: inputs.symbol.trim() || "BTC/USDT",
-      accountType: inputs.accountType === "prop" ? "Prop" : "Personal",
-      direction: inputs.direction,
-      riskPercent,
-      plannedR,
-      riskAmount: riskPerTrade,
-      realizedR: null,
-      outcome: "open",
-      status,
-    };
 
-    setLog((prev) => [entry, ...prev]);
-    setToast({
-      id: now.getTime(),
-      message: "Trade logged",
-      type: "success",
-    });
+    // If this is a missed trade, keep using the local journal only.
+    if (status === "missed") {
+      const entry: TradeLogEntry = {
+        id: now.getTime(),
+        timestamp: now.toLocaleString(),
+        symbol: inputs.symbol.trim() || "BTC/USDT",
+        accountType: inputs.accountType === "prop" ? "Prop" : "Personal",
+        direction: inputs.direction,
+        riskPercent,
+        plannedR,
+        riskAmount: riskPerTrade,
+        realizedR: null,
+        outcome: "open",
+        status,
+      };
+
+      setLog((prev) => [entry, ...prev]);
+      setToast({
+        id: now.getTime(),
+        message: "Missed trade logged in journal",
+        type: "success",
+      });
+      return;
+    }
+
+    // Taken trades should go straight to the user dashboard (DB) via API.
+    setSavingToDashboard(true);
+    try {
+      const entryPriceNum = toNumber(inputs.entry);
+      const stopLossNum = toNumber(inputs.stop);
+      const tp1 = toNumber(inputs.takeProfit1);
+      const tp2 = toNumber(inputs.takeProfit2);
+      const tp3 = toNumber(inputs.takeProfit3);
+
+      const takeProfits = [
+        ...(tp1 > 0 ? [{ price: tp1, percent: 0 }] : []),
+        ...(tp2 > 0 ? [{ price: tp2, percent: 0 }] : []),
+        ...(tp3 > 0 ? [{ price: tp3, percent: 0 }] : []),
+      ];
+
+      const res = await fetch("/api/trades", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          entryPrice: entryPriceNum,
+          positionSize: orderQty,
+          leverage: impliedLeverage || 1,
+          liquidationPrice,
+          stopLoss: stopLossNum,
+          pnl: 0,
+          status: "open",
+          category: "active",
+          takeProfits,
+        }),
+      });
+
+      if (!res.ok) {
+        // If saving to dashboard fails, fall back to local log so the setup isn't lost.
+        const entry: TradeLogEntry = {
+          id: now.getTime(),
+          timestamp: now.toLocaleString(),
+          symbol: inputs.symbol.trim() || "BTC/USDT",
+          accountType: inputs.accountType === "prop" ? "Prop" : "Personal",
+          direction: inputs.direction,
+          riskPercent,
+          plannedR,
+          riskAmount: riskPerTrade,
+          realizedR: null,
+          outcome: "open",
+          status,
+        };
+
+        setLog((prev) => [entry, ...prev]);
+        setToast({
+          id: now.getTime(),
+          message: "Dashboard save failed. Trade kept in local journal.",
+          type: "error",
+        });
+        return;
+      }
+
+      // Success: clear inputs so the trade effectively "moves" to the dashboard.
+      setInputs((prev) => ({
+        ...prev,
+        entry: "",
+        stop: "",
+        takeProfit1: "",
+        takeProfit2: "",
+        takeProfit3: "",
+      }));
+
+      setToast({
+        id: now.getTime(),
+        message: "Trade saved to your dashboard.",
+        type: "success",
+      });
+    } catch {
+      setToast({
+        id: now.getTime(),
+        message: "Unable to save trade to dashboard. Try again later.",
+        type: "error",
+      });
+    } finally {
+      setSavingToDashboard(false);
+    }
   };
 
   const handleUpdateLogEntry = (
@@ -462,7 +550,7 @@ export default function RiskCalculatorPage() {
   const handleKeyDown = (e: ReactKeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
-      handleAddToLog();
+      void handleAddToLog();
     }
   };
 
@@ -836,11 +924,15 @@ export default function RiskCalculatorPage() {
                 </select>
                 <button
                   type="button"
-                  onClick={handleAddToLog}
-                  disabled={!canCompute || riskPerTrade <= 0}
+                  onClick={() => void handleAddToLog()}
+                  disabled={
+                    !canCompute || riskPerTrade <= 0 || savingToDashboard
+                  }
                   className="rounded-lg bg-[#39FF88] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-black shadow-[0_0_18px_rgba(57,255,136,0.6)] transition enabled:hover:bg-[#2fd270] disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-300"
                 >
-                  Log trade (Ctrl/Cmd + Enter)
+                  {savingToDashboard
+                    ? "Saving..."
+                    : "Log trade (Ctrl/Cmd + Enter)"}
                 </button>
                 <button
                   type="button"
