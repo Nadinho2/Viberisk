@@ -28,7 +28,7 @@ export function SiteHeader() {
           {/* Logo – link to home */}
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/viberisk-logo.png"
+              src="/window.svg"
               alt="VibeRisk"
               width={40}
               height={40}

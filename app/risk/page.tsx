@@ -30,6 +30,7 @@ type TradeOutcome = "open" | "win" | "loss" | "breakeven";
 type TradeLogEntry = {
   id: number;
   timestamp: string;
+  // display fields
   symbol: string;
   accountType: string;
   direction: Direction;
@@ -39,6 +40,13 @@ type TradeLogEntry = {
   realizedR: number | null;
   outcome: TradeOutcome;
   status: TradeLogStatus;
+  // fields needed to sync to dashboard API
+  entryPrice: number;
+  stopLoss: number;
+  positionSize: number;
+  leverage: number;
+  liquidationPrice: number;
+  sentToDashboard?: boolean;
 };
 
 type Toast = {
@@ -271,7 +279,7 @@ export default function RiskCalculatorPage() {
     };
   }, [inputs]);
 
-  const handleAddToLog = async () => {
+  const handleAddToLog = () => {
     if (!canCompute || riskPerTrade <= 0 || plannedR <= 0) {
       setToast({
         id: Date.now(),
@@ -289,161 +297,78 @@ export default function RiskCalculatorPage() {
     const tp2 = toNumber(inputs.takeProfit2);
     const tp3 = toNumber(inputs.takeProfit3);
 
-    const takeProfits = [
-      ...(tp1 > 0 ? [{ price: tp1, percent: 0 }] : []),
-      ...(tp2 > 0 ? [{ price: tp2, percent: 0 }] : []),
-      ...(tp3 > 0 ? [{ price: tp3, percent: 0 }] : []),
-    ];
+    const entry: TradeLogEntry = {
+      id: now.getTime(),
+      timestamp: now.toLocaleString(),
+      symbol: inputs.symbol.trim() || "BTC/USDT",
+      accountType: inputs.accountType === "prop" ? "Prop" : "Personal",
+      direction: inputs.direction,
+      riskPercent,
+      plannedR,
+      riskAmount: riskPerTrade,
+      realizedR: null,
+      outcome: "open",
+      status,
+      entryPrice: entryPriceNum,
+      stopLoss: stopLossNum,
+      positionSize: orderQty,
+      leverage: impliedLeverage || 1,
+      liquidationPrice,
+      sentToDashboard: false,
+    };
 
-    // MISSED trades: save to dashboard with category "missed", plus local journal
-    if (status === "missed") {
-      try {
-        await fetch("/api/trades", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            entryPrice: entryPriceNum,
-            positionSize: orderQty,
-            leverage: impliedLeverage || 1,
-            liquidationPrice,
-            stopLoss: stopLossNum,
-            pnl: 0,
-            status: "open",
-            category: "missed",
-            takeProfits,
-          }),
-        });
+    setLog((prev) => [entry, ...prev]);
 
-        const entry: TradeLogEntry = {
-          id: now.getTime(),
-          timestamp: now.toLocaleString(),
-          symbol: inputs.symbol.trim() || "BTC/USDT",
-          accountType: inputs.accountType === "prop" ? "Prop" : "Personal",
-          direction: inputs.direction,
-          riskPercent,
-          plannedR,
-          riskAmount: riskPerTrade,
-          realizedR: null,
-          outcome: "open",
-          status: "missed",
-        };
-        setLog((prev) => [entry, ...prev]);
+    setInputs((prev) => ({
+      ...prev,
+      entry: "",
+      stop: "",
+      takeProfit1: "",
+      takeProfit2: "",
+      takeProfit3: "",
+    }));
 
-        setInputs((prev) => ({
-          ...prev,
-          entry: "",
-          stop: "",
-          takeProfit1: "",
-          takeProfit2: "",
-          takeProfit3: "",
-        }));
-
-        setToast({
-          id: now.getTime(),
-          message: "Missed trade saved to your dashboard.",
-          type: "success",
-        });
-      } catch {
-        setToast({
-          id: now.getTime(),
-          message: "Unable to save missed trade to dashboard.",
-          type: "error",
-        });
-      }
-      return;
-    }
-
-    // TAKEN trades: send to dashboard with category "active"
-    try {
-      const res = await fetch("/api/trades", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          entryPrice: entryPriceNum,
-          positionSize: orderQty,
-          leverage: impliedLeverage || 1,
-          liquidationPrice,
-          stopLoss: stopLossNum,
-          pnl: 0,
-          status: "open",
-          category: "active",
-          takeProfits,
-        }),
-      });
-
-      if (!res.ok) {
-        const entry: TradeLogEntry = {
-          id: now.getTime(),
-          timestamp: now.toLocaleString(),
-          symbol: inputs.symbol.trim() || "BTC/USDT",
-          accountType: inputs.accountType === "prop" ? "Prop" : "Personal",
-          direction: inputs.direction,
-          riskPercent,
-          plannedR,
-          riskAmount: riskPerTrade,
-          realizedR: null,
-          outcome: "open",
-          status,
-        };
-
-        setLog((prev) => [entry, ...prev]);
-        setToast({
-          id: now.getTime(),
-          message: "Dashboard save failed. Trade kept in local journal.",
-          type: "error",
-        });
-        return;
-      }
-
-      setInputs((prev) => ({
-        ...prev,
-        entry: "",
-        stop: "",
-        takeProfit1: "",
-        takeProfit2: "",
-        takeProfit3: "",
-      }));
-
-      setToast({
-        id: now.getTime(),
-        message: "Trade saved to your dashboard.",
-        type: "success",
-      });
-    } catch {
-      setToast({
-        id: now.getTime(),
-        message: "Unable to save trade to dashboard. Try again later.",
-        type: "error",
-      });
-    }
+    setToast({
+      id: now.getTime(),
+      message: "Trade logged. Add outcome to send to dashboard.",
+      type: "success",
+    });
   };
 
-  const handleUpdateLogEntry = (
+  const handleUpdateLogEntry = async (
     id: number,
     patch: Partial<Pick<TradeLogEntry, "status" | "realizedR" | "outcome">>
   ) => {
+    const existing = log.find((e) => e.id === id);
+    if (!existing) {
+      // nothing to update
+      return;
+    }
+
+    let next: TradeLogEntry = { ...existing, ...patch };
+
+    if (
+      Object.prototype.hasOwnProperty.call(patch, "realizedR") &&
+      patch.realizedR !== null &&
+      patch.realizedR !== undefined &&
+      !Object.prototype.hasOwnProperty.call(patch, "outcome")
+    ) {
+      if (patch.realizedR > 0) next.outcome = "win";
+      else if (patch.realizedR < 0) next.outcome = "loss";
+      else next.outcome = "breakeven";
+    }
+
     setLog((prev) =>
-      prev.map((entry) => {
-        if (entry.id !== id) return entry;
-
-        let next: TradeLogEntry = { ...entry, ...patch };
-
-        if (
-          Object.prototype.hasOwnProperty.call(patch, "realizedR") &&
-          patch.realizedR !== null &&
-          patch.realizedR !== undefined &&
-          !Object.prototype.hasOwnProperty.call(patch, "outcome")
-        ) {
-          if (patch.realizedR > 0) next.outcome = "win";
-          else if (patch.realizedR < 0) next.outcome = "loss";
-          else next.outcome = "breakeven";
-        }
-
-        return next;
-      })
+      prev.map((entry) => (entry.id === id ? next : entry))
     );
+
+    if (
+      !next.sentToDashboard &&
+      next.realizedR != null &&
+      next.outcome !== "open"
+    ) {
+      await handleSyncToDashboard(next);
+    }
   };
 
   const takenCount = log.filter((e) => e.status === "taken").length;
@@ -475,6 +400,80 @@ export default function RiskCalculatorPage() {
     takenWithOutcome.length > 0
       ? totalRealizedR / takenWithOutcome.length
       : 0;
+
+  const handleSyncToDashboard = async (entry: TradeLogEntry) => {
+    if (entry.sentToDashboard) {
+      setToast({
+        id: Date.now(),
+        message: "This trade has already been sent to your dashboard.",
+        type: "error",
+      });
+      return;
+    }
+
+    if (entry.realizedR == null || entry.outcome === "open") {
+      setToast({
+        id: Date.now(),
+        message:
+          "Set realized R and outcome (win/loss/breakeven) before closing.",
+        type: "error",
+      });
+      return;
+    }
+
+    const pnl =
+      entry.status === "taken" && entry.realizedR != null
+        ? entry.riskAmount * entry.realizedR
+        : 0;
+
+    const category =
+      entry.status === "missed" ? "missed" : "concluded";
+
+    try {
+      const res = await fetch("/api/trades", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          entryPrice: entry.entryPrice,
+          positionSize: entry.positionSize,
+          leverage: entry.leverage,
+          liquidationPrice: entry.liquidationPrice,
+          stopLoss: entry.stopLoss,
+          pnl,
+          status: "closed",
+          category,
+        }),
+      });
+
+      if (!res.ok) {
+        setToast({
+          id: Date.now(),
+          message: "Unable to send trade to dashboard.",
+          type: "error",
+        });
+        return;
+      }
+
+      setLog((prev) =>
+        prev.map((e) =>
+          e.id === entry.id ? { ...e, sentToDashboard: true } : e
+        )
+      );
+
+      setToast({
+        id: Date.now(),
+        message: "Trade outcome saved to your dashboard.",
+        type: "success",
+      });
+    } catch {
+      setToast({
+        id: Date.now(),
+        message: "Unable to send trade to dashboard.",
+        type: "error",
+      });
+    }
+  };
 
   const handleExportCsv = () => {
     if (log.length === 0) {
