@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://viberisk-17i6.vercel.app"),
   title: "Crypto Position & Risk Calculator",
   description:
     "Professional crypto position sizing, risk calculator, and live charts for BTC, ETH, SOL, BNB, XAUT.",
@@ -54,9 +55,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen min-w-0 flex-col antialiased`}
       >
         <SiteHeader />
-        <main className="flex-1 pt-14 sm:pt-16">
-          {children}
-        </main>
+        <main className="flex-1 pt-14 sm:pt-16">{children}</main>
         <SiteFooter />
       </body>
     </html>
