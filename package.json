@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@rainbow-me/rainbowkit": "^2.2.10",
     "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.1",
@@ -17,8 +16,6 @@
     "nodemailer": "^6.9.15",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "viem": "^2.47.1",
-    "wagmi": "^3.5.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
