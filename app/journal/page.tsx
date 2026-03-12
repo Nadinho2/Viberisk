@@ -966,13 +966,9 @@ export default function TradeJournalPage() {
                       {confluenceScore}/10
                     </span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => void downloadJournalPdf(payload, confluenceScore)}
-                    className="rounded-lg border border-slate-700 px-3 py-1.5 text-[0.7rem] text-slate-200 hover:border-[#39FF88] hover:text-[#39FF88]"
-                  >
-                    Download plan as PDF
-                  </button>
+                  <p className="text-[0.7rem] text-slate-400">
+                    A PDF of this plan will download automatically when you save.
+                  </p>
                 </div>
               </div>
             </div>
