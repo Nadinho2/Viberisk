@@ -17,13 +17,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://viberisk-17i6.vercel.app"),
-  title: "Crypto Position & Risk Calculator",
+  title: "VibeRisk – Crypto Risk Calculator, Trade Journal & Dashboard",
   description:
-    "Professional crypto position sizing, risk calculator, and live charts for BTC, ETH, SOL, BNB, XAUT.",
+    "Size crypto positions like a pro with VibeRisk – a free risk calculator, trade journal, and PnL dashboard for BTC, ETH, SOL, BNB, XAUT and more.",
   openGraph: {
-    title: "VibeRisk – Crypto Risk Calculator",
+    title: "VibeRisk – Crypto Risk Calculator & Trade Journal",
     description:
-      "Track your crypto risk, position sizing, and trade history with VibeRisk.",
+      "Track your crypto risk, position sizing, trade history and full trade journals in one neon cyberpunk dashboard.",
     images: [
       {
         url: "/viberisk-logo.png",

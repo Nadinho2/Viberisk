@@ -349,7 +349,7 @@ export default function TradeJournalPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 px-4 py-6 text-slate-50 sm:px-5 sm:py-8 md:px-6 md:py-10 lg:px-8">
+    <main className="neon-bg min-h-screen px-4 py-6 sm:px-5 sm:py-8 md:px-6 md:py-10 lg:px-8">
       <div className="mx-auto flex max-w-6xl flex-col gap-6">
         <header className="border-b border-slate-800 pb-4">
           <h1 className="text-xl font-semibold tracking-tight text-slate-50 sm:text-2xl md:text-3xl">

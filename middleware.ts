@@ -1,16 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PROTECTED_PATHS = [
-  "/risk",
-  "/btc-usdt",
-  "/btc",
-  "/eth",
-  "/sol",
-  "/bnb",
-  "/xaut",
-  "/dashboard",
-  "/journal"
-];
+const PROTECTED_PATHS = ["/dashboard"];
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -36,15 +26,7 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/risk/:path*",
-    "/btc-usdt/:path*",
-    "/btc/:path*",
-    "/eth/:path*",
-    "/sol/:path*",
-    "/bnb/:path*",
-    "/xaut/:path*",
-    "/dashboard/:path*",
-    "/journal/:path*"
+    "/dashboard/:path*"
   ]
 };
 

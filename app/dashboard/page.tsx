@@ -93,7 +93,7 @@ export default function DashboardPage() {
 
   if (!userLoaded) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
+      <main className="neon-bg flex min-h-screen items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
       </main>
     );
@@ -106,11 +106,11 @@ export default function DashboardPage() {
   );
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-6 text-slate-50">
+    <main className="neon-bg min-h-screen px-4 py-6">
       <div className="mx-auto max-w-6xl space-y-5">
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-emerald-400">
+            <h1 className="text-xl font-semibold text-emerald-400 drop-shadow-[0_0_18px_rgba(16,185,129,0.8)]">
               VibeRisk Dashboard
             </h1>
             <p className="text-xs text-slate-400">
@@ -119,7 +119,7 @@ export default function DashboardPage() {
           </div>
         </header>
 
-        <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+        <section className="neon-card p-4">
           <div className="mb-3 flex items-center justify-between text-xs">
             <h2 className="text-sm font-semibold text-slate-200">Trades</h2>
             <p

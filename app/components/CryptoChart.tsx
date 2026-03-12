@@ -55,47 +55,87 @@ export function CryptoChart() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50">
-      <div className="mx-auto flex min-h-full max-w-7xl flex-col px-4 py-6 sm:px-5 sm:py-8 md:px-6 md:py-10 lg:px-8">
+      <div className="mx-auto flex min-h-full max-w-7xl flex-col px-4 py-8 sm:px-5 sm:py-10 md:px-6 md:py-12 lg:px-8">
         {/* Hero / intro */}
-        <header className="mb-6 border-b border-slate-800 pb-5 sm:mb-8 sm:pb-6">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <header className="mb-10 border-b border-slate-800 pb-8">
+          <div className="grid gap-8 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1.1fr)] md:items-center">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-slate-50 sm:text-3xl md:text-4xl">
-                Crypto Position &amp; Risk Dashboard
+              <div className="inline-flex items-center gap-3 rounded-full border border-slate-700/80 bg-slate-900/80 px-3 py-1 text-[0.7rem] text-slate-300 shadow-[0_0_20px_rgba(0,243,255,0.35)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#00f3ff]" />
+                100% free · No signup needed to try the calculator
+              </div>
+              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl md:text-5xl">
+                Size Crypto Trades Like a Pro
               </h1>
-              <p className="mt-2 max-w-xl text-xs text-slate-400 sm:text-sm md:text-base">
-                Size positions with precision, log trades as taken or missed, and track PnL and performance in your private VibeRisk dashboard.
+              <p className="mt-3 text-sm text-slate-300 sm:text-base">
+                VibeRisk combines a precision risk calculator, trade journal, and PnL
+                dashboard so you can stop guessing and start operating like a desk.
               </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {loading ? null : user ? (
+              <p className="mt-2 text-xs text-slate-400 sm:text-sm">
+                Instant position sizing, taken/missed tracking, and a rich trade
+                journal – all wrapped in a neon, trader-first experience.
+              </p>
+              <div className="mt-5 flex flex-wrap items-center gap-3">
                 <Link
-                  href="/dashboard"
-                  className="inline-flex items-center justify-center rounded-lg bg-[#39FF88] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-950 shadow-[0_0_18px_rgba(57,255,136,0.5)] hover:bg-[#2fd270]"
+                  href="/risk"
+                  className="inline-flex items-center justify-center rounded-lg bg-[#39FF88] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-slate-950 shadow-[0_0_24px_rgba(57,255,136,0.75)] hover:bg-[#2fd270]"
                 >
-                  Go to dashboard
+                  Try the risk calculator
                 </Link>
-              ) : (
-                <>
+                {loading ? null : user ? (
                   <Link
-                    href="/login"
-                    className="inline-flex items-center justify-center rounded-lg bg-[#39FF88] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-950 shadow-[0_0_18px_rgba(57,255,136,0.5)] hover:bg-[#2fd270]"
+                    href="/dashboard"
+                    className="inline-flex items-center justify-center rounded-lg border border-slate-700 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-200 hover:border-[#39FF88] hover:text-[#39FF88]"
                   >
-                    Login
+                    View my dashboard
                   </Link>
+                ) : (
                   <Link
                     href="/register"
                     className="inline-flex items-center justify-center rounded-lg border border-slate-700 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-200 hover:border-[#39FF88] hover:text-[#39FF88]"
                   >
-                    Create account
+                    Get started (free)
                   </Link>
-                </>
-              )}
+                )}
+              </div>
+            </div>
+
+            {/* Hero media / placeholders for screenshots */}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-slate-700/90 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-3 shadow-[0_0_35px_rgba(0,243,255,0.4)]">
+                <div className="mb-2 h-32 rounded-xl bg-slate-900/80 sm:h-36" />
+                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-300">
+                  Calculator preview
+                </p>
+                <p className="mt-1 text-[0.7rem] text-slate-400">
+                  Drop a screenshot of the Risk Calculator here later.
+                </p>
+              </div>
+              <div className="space-y-3">
+                <div className="rounded-2xl border border-slate-700/80 bg-slate-950/90 p-3 shadow-[0_0_28px_rgba(255,0,170,0.4)]">
+                  <div className="mb-2 h-20 rounded-xl bg-slate-900/80" />
+                  <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-300">
+                    Dashboard preview
+                  </p>
+                  <p className="mt-1 text-[0.7rem] text-slate-400">
+                    Reserve for a screenshot of PnL + trade list.
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-slate-700/80 bg-slate-950/90 p-3 shadow-[0_0_24px_rgba(0,243,255,0.25)]">
+                  <div className="mb-2 h-16 rounded-xl bg-slate-900/80" />
+                  <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-300">
+                    Journal preview
+                  </p>
+                  <p className="mt-1 text-[0.7rem] text-slate-400">
+                    Space for a GIF of the Trade Journal modal or page.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </header>
 
-        {/* Chart */}
+        {/* Live chart */}
         <main className="flex-1 min-w-0">
           <div
             className="overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/60 shadow-2xl ring-1 ring-slate-700/50"
@@ -127,16 +167,20 @@ export function CryptoChart() {
         </main>
 
         {/* Quick links to calculators */}
-        <section className="mt-8 border-t border-slate-800 pt-6 sm:mt-10 sm:pt-8">
-          <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 sm:text-sm">
+        <section className="mt-10 border-t border-slate-800 pt-6 sm:mt-12 sm:pt-8">
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 sm:text-sm">
             Position calculators
           </h2>
+          <p className="mb-4 text-[0.7rem] text-slate-400 sm:text-xs">
+            Jump straight into a pair-specific calculator, or use the general Risk
+            Calculator to size any futures or spot trade.
+          </p>
           <div className="flex flex-wrap gap-2">
             {PAIRS.map(({ slug, label }) => (
               <Link
                 key={slug}
                 href={`/${slug}`}
-                className="min-h-[48px] rounded-lg border border-slate-700/80 bg-slate-800/50 px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-slate-600 hover:bg-slate-700/50 hover:text-slate-100 active:bg-slate-700/50 touch-manipulation flex items-center sm:min-h-0 sm:py-2"
+                className="min-h-[48px] rounded-lg border border-slate-700/80 bg-slate-800/50 px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-[#00f3ff] hover:bg-slate-800 hover:text-slate-100 active:bg-slate-800 touch-manipulation flex items-center sm:min-h-0 sm:py-2"
               >
                 {label}/USDT calculator →
               </Link>
@@ -145,33 +189,50 @@ export function CryptoChart() {
         </section>
 
         {/* How it works */}
-        <section className="mt-8 border-t border-slate-800 pt-6 sm:mt-10 sm:pt-8">
+        <section className="mt-10 border-t border-slate-800 pt-6 sm:mt-12 sm:pt-8 pb-4">
           <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 sm:text-sm">
-            How VibeRisk works
+            How VibeRisk fits your flow
           </h2>
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-              <p className="mb-1 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-[#39FF88]">
-                1. Size the trade
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 shadow-[0_0_18px_rgba(0,243,255,0.3)]">
+              <p className="mb-1 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-[#00f3ff]">
+                1. Size
               </p>
               <p className="text-xs text-slate-300">
-                Use the <Link href="/risk" className="text-[#39FF88] hover:underline">Risk Calculator</Link> to get precise size, notional, and liquidation for each setup.
+                Use the{" "}
+                <Link href="/risk" className="text-[#00f3ff] hover:underline">
+                  Risk Calculator
+                </Link>{" "}
+                to turn account size + risk % into executable size, leverage and
+                liquidation for any setup.
               </p>
             </div>
-            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-              <p className="mb-1 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-[#39FF88]">
-                2. Log taken / missed
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 shadow-[0_0_18px_rgba(255,0,170,0.25)]">
+              <p className="mb-1 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-[#ff00aa]">
+                2. Log
               </p>
               <p className="text-xs text-slate-300">
-                Log each setup as <span className="font-semibold">Taken</span> or <span className="font-semibold">Missed</span> with planned R directly from the risk page.
+                Mark setups as{" "}
+                <span className="font-semibold text-slate-100">Taken</span> or{" "}
+                <span className="font-semibold text-slate-100">Missed</span>, then
+                use the Trade Journal to capture context, mindset and confluence in
+                seconds.
               </p>
             </div>
-            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 shadow-[0_0_18px_rgba(57,255,136,0.3)]">
               <p className="mb-1 text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-[#39FF88]">
-                3. Review your edge
+                3. Review
               </p>
               <p className="text-xs text-slate-300">
-                After the trade plays out, save the outcome and PnL – it syncs to your <Link href="/dashboard" className="text-[#39FF88] hover:underline">Dashboard</Link> with total PnL on top.
+                After trades play out, record outcomes and PnL – they roll up into
+                your{" "}
+                <Link
+                  href="/dashboard"
+                  className="text-[#39FF88] hover:underline"
+                >
+                  Dashboard
+                </Link>{" "}
+                so you can see total PnL and which setups really work.
               </p>
             </div>
           </div>

@@ -24,7 +24,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-md">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md shadow-[0_0_30px_rgba(0,243,255,0.35)]">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4">
           {/* Logo – link to home */}
           <Link href="/" className="flex items-center gap-2">
@@ -33,12 +33,10 @@ export function SiteHeader() {
               alt="VibeRisk"
               width={40}
               height={40}
-              className="rounded-md"
+              className="rounded-md shadow-[0_0_18px_rgba(57,255,136,0.8)]"
               priority
             />
-            <span className="text-xl font-bold tracking-tighter text-[#39FF88] transition hover:opacity-90 sm:text-2xl md:text-3xl">
-              VibeRisk
-            </span>
+            <span className="neon-logo-text hover:opacity-90">VibeRisk</span>
           </Link>
 
           {/* Desktop nav */}
@@ -66,16 +64,16 @@ export function SiteHeader() {
             {!loading && !user && (
               <Link
                 href="/login"
-                className="rounded-lg border border-[#39FF88]/60 px-3 py-1.5 text-xs font-medium text-[#39FF88] hover:bg-[#39FF88]/10"
+                className="neon-button-secondary"
               >
-                Login
+                Sign in
               </Link>
             )}
             {!loading && user && (
               <>
                 <Link
                   href="/dashboard"
-                  className="rounded-lg bg-[#39FF88] px-3 py-1.5 text-xs font-medium text-zinc-950 hover:bg-[#58ff9c]"
+                  className="neon-button-primary"
                 >
                   Dashboard
                 </Link>

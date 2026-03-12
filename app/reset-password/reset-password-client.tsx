@@ -44,8 +44,8 @@ export default function ResetPasswordClient() {
 
   if (!token) {
     return (
-      <main className="min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-950/80 p-8 text-center shadow-xl">
+      <main className="neon-bg flex min-h-screen items-center justify-center px-4">
+        <div className="w-full max-w-md neon-card p-8 text-center">
           <p className="mb-4 text-sm text-red-400">
             Reset token is missing or invalid.
           </p>
@@ -61,9 +61,9 @@ export default function ResetPasswordClient() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-950/80 p-8 shadow-xl">
-        <h1 className="mb-2 text-center text-2xl font-semibold text-emerald-400">
+    <main className="neon-bg flex min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-md neon-card p-8">
+        <h1 className="mb-2 text-center text-2xl font-semibold text-emerald-400 drop-shadow-[0_0_18px_rgba(16,185,129,0.8)]">
           Choose a new password
         </h1>
         <p className="mb-6 text-center text-sm text-slate-400">
@@ -77,7 +77,7 @@ export default function ResetPasswordClient() {
             </label>
             <input
               type="password"
-              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950/80 px-3 py-2 text-sm text-slate-100 outline-none focus:border-[#00f3ff] focus:ring-2 focus:ring-[#00f3ff]/40"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -94,7 +94,7 @@ export default function ResetPasswordClient() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-950 hover:bg-emerald-400 disabled:opacity-60"
+            className="neon-button-primary w-full text-sm"
           >
             {loading ? "Updating..." : "Update password"}
           </button>

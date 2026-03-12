@@ -436,6 +436,11 @@ export default function RiskCalculatorPage() {
         }),
       });
 
+      if (res.status === 401) {
+        window.location.href = "/login?redirect=/risk";
+        return;
+      }
+
       if (!res.ok) {
         setToast({
           id: Date.now(),
@@ -575,7 +580,7 @@ export default function RiskCalculatorPage() {
 
   return (
     <div
-      className="min-h-screen overflow-x-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50"
+      className="neon-bg min-h-screen overflow-x-hidden"
       onKeyDown={handleKeyDown}
     >
       <div className="mx-auto flex min-h-full max-w-6xl flex-col px-4 py-6 sm:px-5 sm:py-8 md:px-6 md:py-10 lg:px-8">
@@ -593,7 +598,7 @@ export default function RiskCalculatorPage() {
 
         <main className="grid flex-1 gap-6 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
           {/* Inputs */}
-          <section className="min-w-0 rounded-2xl border border-slate-800/80 bg-slate-900/80 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.85)] backdrop-blur sm:p-6">
+          <section className="min-w-0 neon-card p-4 sm:p-6">
             <h2 className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#39FF88] sm:text-sm">
               Trade setup
             </h2>
@@ -795,7 +800,7 @@ export default function RiskCalculatorPage() {
           {/* Calculations + log */}
           <section className="min-w-0 space-y-4">
             {/* Calculations */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.95)] backdrop-blur sm:p-5">
+            <div className="neon-card-soft p-4 sm:p-5">
               <h2 className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#39FF88] sm:text-sm">
                 Position recommendation
               </h2>
@@ -883,7 +888,7 @@ export default function RiskCalculatorPage() {
             </div>
 
             {/* Trade log */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.95)] backdrop-blur sm:p-5">
+            <div className="neon-card-soft p-4 sm:p-5">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300 sm:text-sm">

@@ -41,9 +41,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-950/80 p-8 shadow-xl">
-        <h1 className="mb-2 text-center text-2xl font-semibold text-emerald-400">
+    <main className="neon-bg flex min-h-screen items-center justify-center px-4">
+      <div className="w-full max-w-md neon-card p-8">
+        <h1 className="mb-2 text-center text-2xl font-semibold text-emerald-400 drop-shadow-[0_0_18px_rgba(16,185,129,0.8)]">
           Create your VibeRisk account
         </h1>
         <p className="mb-6 text-center text-sm text-slate-400">
@@ -56,7 +56,7 @@ export default function RegisterPage() {
               Username
             </label>
             <input
-              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950/80 px-3 py-2 text-sm text-slate-100 outline-none focus:border-[#00f3ff] focus:ring-2 focus:ring-[#00f3ff]/40"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -69,7 +69,7 @@ export default function RegisterPage() {
             </label>
             <input
               type="email"
-              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950/80 px-3 py-2 text-sm text-slate-100 outline-none focus:border-[#00f3ff] focus:ring-2 focus:ring-[#00f3ff]/40"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -83,7 +83,7 @@ export default function RegisterPage() {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 pr-10 text-sm text-slate-100"
+                className="w-full rounded-lg border border-slate-700 bg-slate-950/80 px-3 py-2 pr-10 text-sm text-slate-100 outline-none focus:border-[#00f3ff] focus:ring-2 focus:ring-[#00f3ff]/40"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -108,7 +108,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-950 hover:bg-emerald-400 disabled:opacity-60"
+            className="neon-button-primary w-full text-sm"
           >
             {loading ? "Creating account..." : "Create account"}
           </button>
