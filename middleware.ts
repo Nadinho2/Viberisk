@@ -8,7 +8,8 @@ const PROTECTED_PATHS = [
   "/sol",
   "/bnb",
   "/xaut",
-  "/dashboard"
+  "/dashboard",
+  "/journal"
 ];
 
 export function middleware(req: NextRequest) {
@@ -42,7 +43,8 @@ export const config = {
     "/sol/:path*",
     "/bnb/:path*",
     "/xaut/:path*",
-    "/dashboard/:path*"
+    "/dashboard/:path*",
+    "/journal/:path*"
   ]
 };
 
