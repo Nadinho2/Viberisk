@@ -33,7 +33,7 @@ export function SiteFooter() {
             href="/about"
             className="text-slate-300 underline-offset-4 hover:text-[#00f3ff] hover:underline"
           >
-            About
+            About Us
           </a>
           {" · "}
           <a

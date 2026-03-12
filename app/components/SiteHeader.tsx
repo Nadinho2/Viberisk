@@ -10,7 +10,7 @@ const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/risk", label: "Risk Calculator" },
   { href: "/journal", label: "Trade Journal" },
-  { href: "/about", label: "About" },
+  { href: "/about", label: "About Us" },
   { href: "/contact", label: "Contact" },
 ] as const;
 
