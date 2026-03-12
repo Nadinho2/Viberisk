@@ -103,7 +103,14 @@ export function CryptoChart() {
             {/* Hero media / placeholders for screenshots */}
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-2xl border border-slate-700/90 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-3 shadow-[0_0_35px_rgba(0,243,255,0.4)]">
-                <div className="mb-2 h-32 rounded-xl bg-slate-900/80 sm:h-36" />
+                <div
+                  className="mb-2 h-32 overflow-hidden rounded-xl bg-slate-900/80 sm:h-36"
+                  style={{
+                    backgroundImage: "url(/risk-preview.png)",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                />
                 <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-300">
                   Calculator preview
                 </p>
@@ -113,7 +120,14 @@ export function CryptoChart() {
               </div>
               <div className="space-y-3">
                 <div className="rounded-2xl border border-slate-700/80 bg-slate-950/90 p-3 shadow-[0_0_28px_rgba(255,0,170,0.4)]">
-                  <div className="mb-2 h-20 rounded-xl bg-slate-900/80" />
+                  <div
+                    className="mb-2 h-20 overflow-hidden rounded-xl bg-slate-900/80"
+                    style={{
+                      backgroundImage: "url(/dashboard-preview.png)",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  />
                   <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-300">
                     Dashboard preview
                   </p>
@@ -122,7 +136,14 @@ export function CryptoChart() {
                   </p>
                 </div>
                 <div className="rounded-2xl border border-slate-700/80 bg-slate-950/90 p-3 shadow-[0_0_24px_rgba(0,243,255,0.25)]">
-                  <div className="mb-2 h-16 rounded-xl bg-slate-900/80" />
+                  <div
+                    className="mb-2 h-16 overflow-hidden rounded-xl bg-slate-900/80"
+                    style={{
+                      backgroundImage: "url(/journal-preview.png)",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  />
                   <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-slate-300">
                     Journal preview
                   </p>
