@@ -37,7 +37,7 @@ type TradeLogEntry = {
   riskPercent: number;
   plannedR: number;
   riskAmount: number;
-  realizedR: number | null;
+  pnl: number | null;
   outcome: TradeOutcome;
   status: TradeLogStatus;
   // fields needed to sync to dashboard API
@@ -306,7 +306,7 @@ export default function RiskCalculatorPage() {
       riskPercent,
       plannedR,
       riskAmount: riskPerTrade,
-      realizedR: null,
+      pnl: null,
       outcome: "open",
       status,
       entryPrice: entryPriceNum,
@@ -330,14 +330,15 @@ export default function RiskCalculatorPage() {
 
     setToast({
       id: now.getTime(),
-      message: "Trade logged. Add outcome to send to dashboard.",
+      message:
+        "Trade logged locally. Add PnL and outcome before sending it to your dashboard.",
       type: "success",
     });
   };
 
   const handleUpdateLogEntry = (
     id: number,
-    patch: Partial<Pick<TradeLogEntry, "status" | "realizedR" | "outcome">>
+    patch: Partial<Pick<TradeLogEntry, "status" | "pnl" | "outcome">>
   ) => {
     setLog((prev) =>
       prev.map((entry) => {
@@ -346,13 +347,13 @@ export default function RiskCalculatorPage() {
         let next: TradeLogEntry = { ...entry, ...patch };
 
         if (
-          Object.prototype.hasOwnProperty.call(patch, "realizedR") &&
-          patch.realizedR !== null &&
-          patch.realizedR !== undefined &&
+          Object.prototype.hasOwnProperty.call(patch, "pnl") &&
+          patch.pnl !== null &&
+          patch.pnl !== undefined &&
           !Object.prototype.hasOwnProperty.call(patch, "outcome")
         ) {
-          if (patch.realizedR > 0) next.outcome = "win";
-          else if (patch.realizedR < 0) next.outcome = "loss";
+          if (patch.pnl > 0) next.outcome = "win";
+          else if (patch.pnl < 0) next.outcome = "loss";
           else next.outcome = "breakeven";
         }
 
@@ -364,21 +365,16 @@ export default function RiskCalculatorPage() {
   const takenCount = log.filter((e) => e.status === "taken").length;
   const missedCount = log.filter((e) => e.status === "missed").length;
 
-  const totalRealizedR = log.reduce((sum, entry) => {
-    if (entry.status !== "taken" || entry.realizedR == null) return sum;
-    return sum + entry.realizedR;
-  }, 0);
-
   const totalRealizedPnl = log.reduce((sum, entry) => {
-    if (entry.status !== "taken" || entry.realizedR == null) return sum;
-    return sum + entry.riskAmount * entry.realizedR;
+    if (entry.status !== "taken" || entry.pnl == null) return sum;
+    return sum + entry.pnl;
   }, 0);
 
   const takenWithOutcome = log.filter(
-    (e) => e.status === "taken" && e.realizedR != null
+    (e) => e.status === "taken" && e.pnl != null
   );
   const winCount = takenWithOutcome.filter(
-    (e) => e.realizedR !== null && e.realizedR > 0
+    (e) => e.pnl !== null && e.pnl > 0
   ).length;
 
   const winRate =
@@ -388,7 +384,7 @@ export default function RiskCalculatorPage() {
 
   const avgR =
     takenWithOutcome.length > 0
-      ? totalRealizedR / takenWithOutcome.length
+      ? totalRealizedPnl / takenWithOutcome.length / (log[0]?.riskAmount || 1)
       : 0;
 
   const handleSaveToDashboard = async (entry: TradeLogEntry) => {
@@ -401,20 +397,18 @@ export default function RiskCalculatorPage() {
       return;
     }
 
-    if (entry.realizedR == null || entry.outcome === "open") {
+    if (entry.pnl == null || entry.outcome === "open") {
       setToast({
         id: Date.now(),
         message:
-          "Set realized R and outcome (win/loss/breakeven) before saving.",
+          "Set PnL and outcome (win/loss/breakeven) before saving.",
         type: "error",
       });
       return;
     }
 
     const pnl =
-      entry.status === "taken" && entry.realizedR != null
-        ? entry.riskAmount * entry.realizedR
-        : 0;
+      entry.status === "taken" && entry.pnl != null ? entry.pnl : 0;
 
     const category =
       entry.status === "missed" ? "missed" : "concluded";
@@ -484,17 +478,13 @@ export default function RiskCalculatorPage() {
       "RiskPercent",
       "PlannedR",
       "RiskAmount",
-      "RealizedR",
+      "PnL",
       "Outcome",
       "Status",
-      "PnL",
     ];
 
     const rows = log.map((e) => {
-      const pnl =
-        e.status === "taken" && e.realizedR != null
-          ? e.riskAmount * e.realizedR
-          : 0;
+      const pnl = e.status === "taken" && e.pnl != null ? e.pnl : 0;
       return [
         e.timestamp,
         e.symbol,
@@ -503,10 +493,9 @@ export default function RiskCalculatorPage() {
         e.riskPercent.toString(),
         e.plannedR.toString(),
         e.riskAmount.toString(),
-        e.realizedR == null ? "" : e.realizedR.toString(),
+        e.pnl == null ? "" : e.pnl.toString(),
         e.outcome,
         e.status,
-        pnl.toString(),
       ];
     });
 
@@ -995,7 +984,7 @@ export default function RiskCalculatorPage() {
                         <th className="px-3 py-2">Dir</th>
                         <th className="px-3 py-2">Risk %</th>
                         <th className="px-3 py-2">Planned R:R</th>
-                        <th className="px-3 py-2">Realized R</th>
+                        <th className="px-3 py-2">PnL</th>
                         <th className="px-3 py-2">Outcome</th>
                         <th className="px-3 py-2">Status</th>
                         <th className="px-3 py-2">PnL</th>
@@ -1026,28 +1015,28 @@ export default function RiskCalculatorPage() {
                           <td className="px-3 py-2 align-top">
                             {ratioFormatter.format(entry.plannedR)} R
                           </td>
-                          <td className="px-3 py-2 align-top">
-                            <input
-                              type="number"
-                              inputMode="decimal"
-                              step="0.1"
-                              value={
-                                entry.realizedR != null
-                                  ? entry.realizedR
-                                  : ""
-                              }
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                const parsed =
-                                  value === "" ? null : toNumber(value);
-                                handleUpdateLogEntry(entry.id, {
-                                  realizedR: parsed,
-                                });
-                              }}
-                              className="w-20 rounded border border-slate-700 bg-slate-950/70 px-2 py-1 text-[0.7rem] text-slate-50 outline-none focus:border-[#39FF88] focus:ring-1 focus:ring-[#39FF88]/40"
-                              placeholder="e.g. 1.5"
-                            />
-                          </td>
+                                  <td className="px-3 py-2 align-top">
+                                    <input
+                                      type="number"
+                                      inputMode="decimal"
+                                      step="0.01"
+                                      value={
+                                        entry.pnl != null
+                                          ? entry.pnl
+                                          : ""
+                                      }
+                                      onChange={(e) => {
+                                        const value = e.target.value;
+                                        const parsed =
+                                          value === "" ? null : toNumber(value);
+                                        handleUpdateLogEntry(entry.id, {
+                                          pnl: parsed,
+                                        });
+                                      }}
+                                      className="w-24 rounded border border-slate-700 bg-slate-950/70 px-2 py-1 text-[0.7rem] text-slate-50 outline-none focus:border-[#39FF88] focus:ring-1 focus:ring-[#39FF88]/40"
+                                      placeholder="e.g. 25 or -15"
+                                    />
+                                  </td>
                           <td className="px-3 py-2 align-top">
                             <select
                               value={entry.outcome}
@@ -1080,10 +1069,8 @@ export default function RiskCalculatorPage() {
                           </td>
                           <td className="px-3 py-2 align-top">
                             {entry.status === "taken" &&
-                            entry.realizedR != null
-                              ? usdFormatter.format(
-                                  entry.riskAmount * entry.realizedR
-                                )
+                            entry.pnl != null
+                              ? usdFormatter.format(entry.pnl)
                               : "—"}
                           </td>
                           <td className="px-3 py-2 align-top">
