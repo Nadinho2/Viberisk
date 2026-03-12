@@ -160,6 +160,9 @@ export default function TradeJournalPage() {
   const [exchange, setExchange] = useState<(typeof EXCHANGES)[number]>("Binance");
   const [primaryTf, setPrimaryTf] = useState("15m");
   const [higherTf, setHigherTf] = useState("4h");
+  const [entryPrice, setEntryPrice] = useState("");
+  const [currentPrice, setCurrentPrice] = useState("");
+  const [entryType, setEntryType] = useState<"limit" | "market">("limit");
 
   // Section 2
   const [regime, setRegime] = useState<(typeof REGIMES)[number]>("Trending Up");
@@ -282,6 +285,9 @@ export default function TradeJournalPage() {
       exchange,
       primaryTimeframe: primaryTf.trim(),
       higherTimeframe: higherTf.trim(),
+      entryPrice: entryPrice ? Number(entryPrice) : undefined,
+      currentPrice: currentPrice ? Number(currentPrice) : undefined,
+      entryType,
       marketRegime: regime,
       htfBias: htfBias.trim(),
       catalyst: catalyst.trim() || undefined,
@@ -434,6 +440,45 @@ export default function TradeJournalPage() {
                   placeholder="e.g. 4h or Daily"
                   required
                 />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[0.7rem] font-medium text-slate-300">
+                  Entry price
+                </label>
+                <input
+                  type="number"
+                  value={entryPrice}
+                  onChange={(e) => setEntryPrice(e.target.value)}
+                  className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                  placeholder="Optional, e.g. 92000"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[0.7rem] font-medium text-slate-300">
+                  Current price
+                </label>
+                <input
+                  type="number"
+                  value={currentPrice}
+                  onChange={(e) => setCurrentPrice(e.target.value)}
+                  className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                  placeholder="Spot price when journaling"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[0.7rem] font-medium text-slate-300">
+                  Entry type
+                </label>
+                <select
+                  value={entryType}
+                  onChange={(e) =>
+                    setEntryType(e.target.value as "limit" | "market")
+                  }
+                  className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-50 outline-none focus:border-[#39FF88] focus:ring-2 focus:ring-[#39FF88]/30"
+                >
+                  <option value="limit">Limit</option>
+                  <option value="market">Market</option>
+                </select>
               </div>
             </div>
           </section>

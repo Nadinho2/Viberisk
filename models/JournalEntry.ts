@@ -8,6 +8,9 @@ export interface IJournalEntry extends Document {
   exchange: string;
   primaryTimeframe: string;
   higherTimeframe: string;
+  entryPrice?: number;
+  currentPrice?: number;
+  entryType?: "limit" | "market";
   // Section 2
   marketRegime: string;
   htfBias: string;
@@ -55,6 +58,9 @@ const journalSchema = new Schema<IJournalEntry>(
     exchange: { type: String, required: true },
     primaryTimeframe: { type: String, required: true },
     higherTimeframe: { type: String, required: true },
+    entryPrice: { type: Number },
+    currentPrice: { type: Number },
+    entryType: { type: String, enum: ["limit", "market"] },
     marketRegime: { type: String, required: true },
     htfBias: { type: String, required: true },
     catalyst: { type: String },
