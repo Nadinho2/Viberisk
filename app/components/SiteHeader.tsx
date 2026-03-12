@@ -10,11 +10,8 @@ const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/risk", label: "Risk Calculator" },
   { href: "/journal", label: "Trade Journal" },
-  { href: "/btc-usdt", label: "BTC" },
-  { href: "/eth", label: "ETH" },
-  { href: "/sol", label: "SOL" },
-  { href: "/bnb", label: "BNB" },
-  { href: "/xaut", label: "XAUT" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
 ] as const;
 
 export function SiteHeader() {

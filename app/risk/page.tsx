@@ -575,14 +575,46 @@ export default function RiskCalculatorPage() {
       <div className="mx-auto flex min-h-full max-w-6xl flex-col px-4 py-6 sm:px-5 sm:py-8 md:px-6 md:py-10 lg:px-8">
         {/* Header */}
         <header className="mb-6 border-b border-slate-800 pb-5 sm:mb-8 sm:pb-6">
-          <h1 className="text-xl font-semibold tracking-tight text-slate-50 sm:text-2xl md:text-3xl">
-            Risk Calculator
-          </h1>
-          <p className="mt-2 max-w-2xl text-xs text-slate-400 sm:text-sm md:text-base">
-            Get precise position sizing from your account size and risk
-            percentage. See exact order quantity, notional value, and
-            risk‑reward, then log trades to track your performance.
-          </p>
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h1 className="text-xl font-semibold tracking-tight text-slate-50 sm:text-2xl md:text-3xl">
+                Risk Calculator
+              </h1>
+              <p className="mt-2 max-w-2xl text-xs text-slate-400 sm:text-sm md:text-base">
+                Get precise position sizing from your account size and risk
+                percentage. See exact order quantity, notional value, and
+                risk‑reward, then log trades to track your performance.
+              </p>
+            </div>
+            <div className="space-y-1 text-right text-[0.7rem] text-slate-400 sm:text-xs">
+              <div className="flex items-center gap-2 md:justify-end">
+                <span className="uppercase tracking-[0.16em] text-slate-500">
+                  Pair
+                </span>
+                <select
+                  value={inputs.symbol}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "Custom") return;
+                    setInputs((prev) => ({
+                      ...prev,
+                      symbol: value,
+                    }));
+                    void handleFillCurrentPrice();
+                  }}
+                  className="rounded-lg border border-teal-400/70 bg-slate-950/70 px-3 py-1.5 text-xs text-slate-50 outline-none transition focus:border-[#00f3ff] focus:ring-2 focus:ring-[#00f3ff]/40"
+                >
+                  <option value="BTC/USDT">BTC/USDT</option>
+                  <option value="ETH/USDT">ETH/USDT</option>
+                  <option value="SOL/USDT">SOL/USDT</option>
+                  <option value="BNB/USDT">BNB/USDT</option>
+                  <option value="XAUT/USDT">XAUT/USDT</option>
+                  <option value="Custom">Custom</option>
+                </select>
+              </div>
+              <p>Select pair for live price auto‑fill.</p>
+            </div>
+          </div>
         </header>
 
         <main className="grid flex-1 gap-6 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">

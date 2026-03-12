@@ -187,26 +187,21 @@ export function CryptoChart() {
           </p>
         </main>
 
-        {/* Quick links to calculators */}
+        {/* Quick link to main calculator */}
         <section className="mt-10 border-t border-slate-800 pt-6 sm:mt-12 sm:pt-8">
           <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 sm:text-sm">
-            Position calculators
+            Position calculator
           </h2>
           <p className="mb-4 text-[0.7rem] text-slate-400 sm:text-xs">
-            Jump straight into a pair-specific calculator, or use the general Risk
-            Calculator to size any futures or spot trade.
+            Use the main Risk Calculator to size any pair – you can switch
+            symbols inside the tool and auto-fill live prices.
           </p>
-          <div className="flex flex-wrap gap-2">
-            {PAIRS.map(({ slug, label }) => (
-              <Link
-                key={slug}
-                href={`/${slug}`}
-                className="min-h-[48px] rounded-lg border border-slate-700/80 bg-slate-800/50 px-4 py-3 text-sm font-medium text-slate-300 transition hover:border-[#00f3ff] hover:bg-slate-800 hover:text-slate-100 active:bg-slate-800 touch-manipulation flex items-center sm:min-h-0 sm:py-2"
-              >
-                {label}/USDT calculator →
-              </Link>
-            ))}
-          </div>
+          <Link
+            href="/risk"
+            className="neon-button-primary text-[0.7rem] sm:text-xs"
+          >
+            Open Risk Calculator
+          </Link>
         </section>
 
         {/* How it works */}

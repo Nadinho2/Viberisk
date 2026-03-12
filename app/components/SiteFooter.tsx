@@ -28,6 +28,20 @@ export function SiteFooter() {
           >
             Privacy Policy
           </a>
+          {" · "}
+          <a
+            href="/about"
+            className="text-slate-300 underline-offset-4 hover:text-[#00f3ff] hover:underline"
+          >
+            About
+          </a>
+          {" · "}
+          <a
+            href="/contact"
+            className="text-slate-300 underline-offset-4 hover:text-[#00f3ff] hover:underline"
+          >
+            Contact
+          </a>
         </p>
       </div>
     </footer>

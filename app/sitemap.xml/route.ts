@@ -11,6 +11,8 @@ const STATIC_PATHS = [
   "/register",
   "/forgot-password",
   "/privacy",
+  "/about",
+  "/contact",
 ] as const;
 
 export async function GET(_req: NextRequest) {
