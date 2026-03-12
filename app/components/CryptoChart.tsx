@@ -115,7 +115,8 @@ export function CryptoChart() {
                   Calculator preview
                 </p>
                 <p className="mt-1 text-[0.7rem] text-slate-400">
-                  Drop a screenshot of the Risk Calculator here later.
+                  Instantly turn account size, risk %, entry and stop into a precise
+                  crypto position size with clear R and liquidation distance.
                 </p>
               </div>
               <div className="space-y-3">
@@ -132,7 +133,8 @@ export function CryptoChart() {
                     Dashboard preview
                   </p>
                   <p className="mt-1 text-[0.7rem] text-slate-400">
-                    Reserve for a screenshot of PnL + trade list.
+                    See all taken and missed trades, edit PnL, and watch your total
+                    performance update in real time.
                   </p>
                 </div>
                 <div className="rounded-2xl border border-slate-700/80 bg-slate-950/90 p-3 shadow-[0_0_24px_rgba(0,243,255,0.25)]">
@@ -148,7 +150,8 @@ export function CryptoChart() {
                     Journal preview
                   </p>
                   <p className="mt-1 text-[0.7rem] text-slate-400">
-                    Space for a GIF of the Trade Journal modal or page.
+                    Capture confluence, context and psychology in one rich journal
+                    entry, then export a PDF for your playbook.
                   </p>
                 </div>
               </div>
