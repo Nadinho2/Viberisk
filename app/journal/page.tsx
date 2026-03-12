@@ -44,6 +44,113 @@ const DEFAULT_RULES = [
   "Setup matches written playbook"
 ];
 
+async function downloadJournalPdf(
+  payload: Record<string, unknown>,
+  confluenceScore: number
+): Promise<void> {
+  const { jsPDF } = await import("jspdf");
+  const doc = new jsPDF();
+
+  const title = "VibeRisk Trade Journal";
+  doc.setFontSize(16);
+  doc.text(title, 10, 15);
+
+  doc.setFontSize(10);
+  const createdAt = new Date().toLocaleString();
+  doc.text(`Created: ${createdAt}`, 10, 22);
+
+  const lines: string[] = [];
+  lines.push("SECTION 1 · Trade identity");
+  lines.push(`Pair: ${payload.pair}`);
+  lines.push(`Direction: ${payload.direction}`);
+  lines.push(`Exchange: ${payload.exchange}`);
+  lines.push(
+    `TFs: ${payload.primaryTimeframe} (primary), ${payload.higherTimeframe} (HTF)`
+  );
+  lines.push("");
+  lines.push("SECTION 2 · Market context");
+  lines.push(`Regime: ${payload.marketRegime}`);
+  lines.push(`HTF Bias: ${payload.htfBias}`);
+  if (payload.sentiment) {
+    lines.push(`Sentiment: ${payload.sentiment}`);
+  }
+  if (payload.catalyst) {
+    lines.push(`Catalyst: ${payload.catalyst}`);
+  }
+  if (payload.drawdownContext) {
+    lines.push(`Drawdown: ${payload.drawdownContext}`);
+  }
+  lines.push("");
+  lines.push("SECTION 3 · Technical setup");
+  lines.push(`Strategy: ${payload.strategyType}`);
+  if (Array.isArray(payload.confluenceFactors)) {
+    lines.push(
+      `Confluence: ${(payload.confluenceFactors as string[]).join(", ")}`
+    );
+  }
+  if (payload.entryRationale) {
+    lines.push(`Entry rationale: ${payload.entryRationale}`);
+  }
+  if (payload.invalidationReason) {
+    lines.push(`Invalidation: ${payload.invalidationReason}`);
+  }
+  if (Array.isArray(payload.keyLevels) && (payload.keyLevels as string[]).length) {
+    lines.push(`Key levels: ${(payload.keyLevels as string[]).join(" | ")}`);
+  }
+  lines.push("");
+  lines.push("SECTION 4 · Risk & reward");
+  lines.push(`Account risk %: ${payload.accountRiskPercent}`);
+  if (payload.positionSize) {
+    lines.push(`Position size: ${payload.positionSize}`);
+  }
+  if (payload.impliedLeverage) {
+    lines.push(`Implied leverage: ${payload.impliedLeverage}`);
+  }
+  if (payload.liquidationPrice) {
+    lines.push(`Liquidation: ${payload.liquidationPrice}`);
+  }
+  lines.push(`Stop loss: ${payload.stopLossPrice}`);
+  if (payload.stopLossRationale) {
+    lines.push(`SL rationale: ${payload.stopLossRationale}`);
+  }
+  if (payload.riskRewardRatio) {
+    lines.push(`Planned RR: ${payload.riskRewardRatio}`);
+  }
+  lines.push("");
+  lines.push("SECTION 5 · Psychology");
+  lines.push(`Confidence: ${payload.confidence}/10`);
+  if (payload.mindset) {
+    lines.push(`Mindset: ${payload.mindset}`);
+  }
+  if (payload.emotionalNotes) {
+    lines.push(`Notes: ${payload.emotionalNotes}`);
+  }
+  lines.push("");
+  lines.push("SECTION 6 · Extras");
+  if (payload.chartUrl) {
+    lines.push(`Chart: ${payload.chartUrl}`);
+  }
+  if (Array.isArray(payload.tags) && (payload.tags as string[]).length) {
+    lines.push(`Tags: ${(payload.tags as string[]).join(", ")}`);
+  }
+  if (payload.preTradeNotes) {
+    lines.push(`Pre-trade notes: ${payload.preTradeNotes}`);
+  }
+  lines.push("");
+  lines.push(`Confluence score: ${confluenceScore}/10`);
+  if (payload.missed) {
+    lines.push("Marked as MISSED trade (documented but not taken).");
+  }
+
+  const split = doc.splitTextToSize(lines.join("\n"), 190);
+  doc.text(split, 10, 30);
+
+  const safePair = String(payload.pair || "pair")
+    .replace(/[^\w\-]+/g, "_")
+    .toLowerCase();
+  doc.save(`viberisk-journal-${safePair}-${Date.now()}.pdf`);
+}
+
 export default function TradeJournalPage() {
   const router = useRouter();
 
@@ -222,6 +329,8 @@ export default function TradeJournalPage() {
       alert("Failed to save journal entry.");
       return;
     }
+
+    await downloadJournalPdf(payload, confluenceScore);
 
     // eslint-disable-next-line no-alert
     alert("Trade journal entry saved.");
@@ -859,11 +968,10 @@ export default function TradeJournalPage() {
                   </div>
                   <button
                     type="button"
-                    disabled
-                    className="rounded-lg border border-slate-700 px-3 py-1.5 text-[0.7rem] text-slate-400"
-                    title="PDF export coming soon."
+                    onClick={() => void downloadJournalPdf(payload, confluenceScore)}
+                    className="rounded-lg border border-slate-700 px-3 py-1.5 text-[0.7rem] text-slate-200 hover:border-[#39FF88] hover:text-[#39FF88]"
                   >
-                    Export plan as PDF (soon)
+                    Download plan as PDF
                   </button>
                 </div>
               </div>

@@ -8,7 +8,6 @@ export async function POST(_req: NextRequest) {
     httpOnly: true,
     secure: env.nodeEnv === "production",
     sameSite: "lax",
-    domain: env.cookieDomain,
     maxAge: 0
   });
 
@@ -16,7 +15,6 @@ export async function POST(_req: NextRequest) {
     httpOnly: true,
     secure: env.nodeEnv === "production",
     sameSite: "lax",
-    domain: env.cookieDomain,
     maxAge: 0
   });
 
