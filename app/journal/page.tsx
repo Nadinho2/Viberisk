@@ -325,8 +325,13 @@ export default function TradeJournalPage() {
     });
 
     if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
       // eslint-disable-next-line no-alert
-      alert("Failed to save journal entry.");
+      alert(
+        data?.message
+          ? `Failed to save journal entry: ${data.message}`
+          : "Failed to save journal entry."
+      );
       return;
     }
 
